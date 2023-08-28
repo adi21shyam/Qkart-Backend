@@ -2,6 +2,8 @@ const httpStatus = require("http-status");
 const ApiError = require("../utils/ApiError");
 const catchAsync = require("../utils/catchAsync");
 const { userService } = require("../services");
+const jwt = require('jsonwebtoken');
+const config = require('../config/config');
 
 /**
  * Get user details
@@ -47,6 +49,16 @@ const getUser = catchAsync(async (req, res) => {
   let userData;
 
   userData = await userService.getUserById(userId);
+  console.log(userId)
+const reqToken = req.headers.authorization.split(" ")[1];
+    console.log('BREAD');
+    console.log(req);
+   const decode = jwt.verify(reqToken, config.jwt.secret);
+   console.log('Butter');
+    console.log(decode);
+   if(decode.sub !== userId){
+      throw new ApiError(httpStatus.FORBIDDEN, "User not found");
+   }
 
   if(userData){
        res.status(200).json(userData);

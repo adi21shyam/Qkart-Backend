@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 // NOTE - "validator" external library and not the custom middleware at src/middlewares/validate.js
 const validator = require("validator");
 const config = require("../config/config");
-
+const bcrypt = require("bcryptjs");
 const userSchema = mongoose.Schema(
   {
     name: {
@@ -70,7 +70,31 @@ userSchema.statics.isEmailTaken = async function (email) {
 
 };
 
+userSchema.pre('save', function(next) {
+  var user = this;
 
+  // only hash the password if it has been modified (or is new)
+  if (!user.isModified('password')) return next();
+
+  // generate a salt
+  bcrypt.genSalt(function(err, salt) {
+      if (err) return next(err);
+
+      // hash the password using our new salt
+      bcrypt.hash(user.password, salt, function(err, hash) {
+          if (err) return next(err);
+          // override the cleartext password with the hashed one
+          user.password = hash;
+          next();
+      });
+  });
+});
+
+
+userSchema.methods.isPasswordMatch = async function (password) {
+  return await bcrypt.compare(password, this.password);
+ };
+ 
 
 /*
  * Create a Mongoose model out of userSchema and export the model as "User"
