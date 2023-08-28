@@ -5,6 +5,8 @@ const { userService } = require("../services");
 const jwt = require('jsonwebtoken');
 const config = require('../config/config');
 
+
+// TODO: CRIO_TASK_MODULE_CART - Update function to process url with query params
 /**
  * Get user details
  *  - Use service layer to get User data
@@ -32,6 +34,12 @@ const config = require('../config/config');
  *     "createdAt": "2021-01-26T11:44:14.544Z",
  *     "updatedAt": "2021-01-26T11:44:14.544Z",
  *     "__v": 0
+ * }
+ * 
+ * Request url - <workspace-ip>:8082/v1/users/6010008e6c3477697e8eaba3?q=address
+ * Response - 
+ * {
+ *   "address": "ADDRESS_NOT_SET"
  * }
  * 
  *
@@ -73,6 +81,27 @@ const reqToken = req.headers.authorization.split(" ")[1];
 });
 
 
+const setAddress = catchAsync(async (req, res) => {
+  const user = await userService.getUserById(req.params.userId);
+
+  if (!user) {
+    throw new ApiError(httpStatus.NOT_FOUND, "User not found");
+  }
+  if (user.email != req.user.email) {
+    throw new ApiError(
+      httpStatus.FORBIDDEN,
+      "User not authorized to access this resource"
+    );
+  }
+
+  const address = await userService.setAddress(user, req.body.address);
+
+  res.send({
+    address: address,
+  });
+});
+
 module.exports = {
   getUser,
+  setAddress,
 };

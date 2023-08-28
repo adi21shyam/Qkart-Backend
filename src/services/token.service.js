@@ -17,6 +17,7 @@ const { tokenTypes } = require("../config/tokens");
  * @returns {string}
  */
 const generateToken = (userId, expires, type, secret = config.jwt.secret) => {
+<<<<<<< HEAD
 
   const payload = {
     sub: userId,
@@ -32,6 +33,8 @@ const generateToken = (userId, expires, type, secret = config.jwt.secret) => {
   const token = jwt.sign(payload, secret);
   return token;
 
+=======
+>>>>>>> a5aaee7d50250441fa7848beebd3da8843a6801c
 };
 
 /**

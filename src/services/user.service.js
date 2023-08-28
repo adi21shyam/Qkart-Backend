@@ -65,9 +65,18 @@ const createUser = async(user) =>{
     }
 }
 
+const setAddress = async (user, newAddress) => {
+    user.address = newAddress;
+    await user.save();
+  
+    return user.address;
+  };
+
+
 
 module.exports = {
     getUserById,
     getUserByEmail,
     createUser,
   }
+
