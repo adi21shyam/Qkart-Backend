@@ -2,6 +2,7 @@ const httpStatus = require("http-status");
 const { Cart, Product } = require("../models");
 const ApiError = require("../utils/ApiError");
 const config = require("../config/config");
+const productService = require("../services/product.service");
 
 // TODO: CRIO_TASK_MODULE_CART - Implement the Cart service methods
 
@@ -17,6 +18,13 @@ const config = require("../config/config");
  * @throws {ApiError}
  */
 const getCartByUser = async (user) => {
+  const { email } = user;
+  const result = await Cart.findOne({ email: email });
+  if (result) {
+    return result;
+  } else {
+    throw new ApiError(httpStatus.NOT_FOUND, "User does not have a cart");
+  }
 };
 
 /**
@@ -44,6 +52,60 @@ const getCartByUser = async (user) => {
  * @throws {ApiError}
  */
 const addProductToCart = async (user, productId, quantity) => {
+  let userCart = await Cart.findOne({ email: user.email });
+  if (!userCart) {
+    try {
+      const newCartDocument = new Cart({
+        email: user.email,
+        cartItems: [],
+      });
+      userCart = await newCartDocument.save();
+    } catch (err) {
+      throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  const productExistsInCart = userCart.cartItems.find(
+    (ele) => ele.product._id.toString() === productId
+  );
+  console.log(productExistsInCart);
+  if (productExistsInCart) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      "Product already in cart. Use the cart sidebar to update or remove product from cart"
+    );
+  }
+
+  const productExistsInDatabase = await productService.getProductById(
+    productId
+  );
+  console.log(productExistsInCart);
+  if (!productExistsInDatabase) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      "Product doesn't exist in database"
+    );
+  }
+
+  // await Cart.updateOne(
+  //   { email: user.email },
+  //   {
+  //     $push: {
+  //       cartItems: {
+  //         product: productExistsInDatabase,
+  //         quantity: quantity,
+  //       },
+  //     },
+  //   },
+  //   {new: true}
+  // );
+  userCart.cartItems.push({
+    product: productExistsInDatabase,
+    quantity: quantity,
+  });
+  // let res = await Cart.findOne({ email: user.email });
+  let res = await userCart.save();
+  return res;
 };
 
 /**
@@ -71,6 +133,39 @@ const addProductToCart = async (user, productId, quantity) => {
  * @throws {ApiError}
  */
 const updateProductInCart = async (user, productId, quantity) => {
+
+  const userCart = await Cart.findOne({ email: user.email });
+  if (!userCart) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      "User does not have a cart. Use POST to create cart and add a product"
+    );
+  }
+
+  const newProduct = await Product.findById(productId);
+  if (!newProduct) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      "Product doesn't exist in database"
+    );
+  }
+
+  const productExistsInUsersCart = userCart.cartItems.find(
+    (ele) => ele.product._id.toString() === productId
+  );
+  if (!productExistsInUsersCart) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "Product not in cart");
+  }
+
+  userCart.cartItems.forEach((ele) => {
+    if (ele.product._id.toString() === productId) {
+      ele.quantity = quantity;
+    }
+  });
+
+  let res = await userCart.save();
+  return res;
+
 };
 
 /**
@@ -91,6 +186,31 @@ const updateProductInCart = async (user, productId, quantity) => {
  * @throws {ApiError}
  */
 const deleteProductFromCart = async (user, productId) => {
+
+  const userCart = await Cart.findOne({ email: user.email });
+  if (!userCart) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "User does not have a cart");
+  }
+
+  let productToUpdate = userCart.cartItems.find(
+    (ele) => ele.product._id.toString() === productId
+  );
+  if (!productToUpdate) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "Product not in cart");
+  }
+
+  let index = -1;
+
+  userCart.cartItems.forEach((ele, i) => {
+    if (ele.product._id.toString() === productId) {
+      index = i;
+    }
+  });
+
+  userCart.cartItems.splice(index, 1);
+  let res = await userCart.save();
+  return res;
+  
 };
 
 

@@ -3,10 +3,6 @@ const config = require("./config");
 const { tokenTypes } = require("./tokens");
 const { User } = require("../models");
 
-<<<<<<< HEAD
-// TODO: CRIO_TASK_MODULE_AUTH - Set mechanism to retrieve Jwt token from user request
-=======
->>>>>>> a5aaee7d50250441fa7848beebd3da8843a6801c
 /**
  * These config options are required
  * Option 1: jwt secret environment variable set in ".env"

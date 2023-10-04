@@ -56,7 +56,14 @@ const getUser = catchAsync(async (req, res) => {
   const {userId} = req.params;
   let userData;
 
-  userData = await userService.getUserById(userId);
+  const {q} = req.query;
+  if(q==='address'){
+    userData = await userService.getUserAddressById(userId);
+    
+
+  }else{
+    userData = await userService.getUserById(userId);
+  }
   console.log(userId)
 const reqToken = req.headers.authorization.split(" ")[1];
     console.log('BREAD');
@@ -69,7 +76,10 @@ const reqToken = req.headers.authorization.split(" ")[1];
    }
 
   if(userData){
-       res.status(200).json(userData);
+    if(q==='address')
+      res.status(200).json({address: userData.address});
+    else
+      res.status(200).json(userData);
   }
   else{
     throw new ApiError(

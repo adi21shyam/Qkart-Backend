@@ -65,6 +65,13 @@ const createUser = async(user) =>{
     }
 }
 
+
+const getUserAddressById = async (id) => {
+    const result = await User.findOne({_id: id}, {email: 1, address: 1});
+    return result;
+  };
+
+
 const setAddress = async (user, newAddress) => {
     user.address = newAddress;
     await user.save();
@@ -78,5 +85,7 @@ module.exports = {
     getUserById,
     getUserByEmail,
     createUser,
+    getUserAddressById,
+    setAddress
   }
 
