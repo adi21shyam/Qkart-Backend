@@ -9,11 +9,17 @@ const { User } = require("../models");
  * Option 2: mechanism to fetch jwt token from request Authentication header with the "bearer" auth scheme
  */
 const jwtOptions = {
+<<<<<<< HEAD
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
   secretOrKey: config.jwt.secret,
 };
 
 // TODO: CRIO_TASK_MODULE_AUTH - Implement verify callback for passport strategy to find the user whose token is passed
+=======
+  secretOrKey: config.jwt.secret,
+};
+
+>>>>>>> 651c95a99824d866ebe55b5992d0f3e18de17a3d
 /**
  * Logic to find the user matching the token passed
  * - If payload type isn't `tokenTypes.ACCESS` return an Error() with message, "Invalid token type" in the callback function
