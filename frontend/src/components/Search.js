@@ -149,7 +149,11 @@ class Search extends React.Component {
     });
 
     if (this.validateResponse(errored, response)) {
+      console.log("Aditya ")
       return response;
+    }
+    else{
+      return [];
     }
   };
 
@@ -242,7 +246,7 @@ class Search extends React.Component {
    */
   getProductElement = (product) => {
     return (
-      <Col xs={24} sm={12} xl={6} key={product._id}>
+      
         <Product
           product={product}
           addToCart={() => {
@@ -253,7 +257,7 @@ class Search extends React.Component {
             }
           }}
         />
-      </Col>
+      
     );
   };
 
@@ -287,17 +291,21 @@ class Search extends React.Component {
           >
             <div className="search-container ">
               {/* Display each product item wrapped in a Col component */}
+              
               <Row>
                 {this.products.length !== 0 ? (
                   this.state.filteredProducts.map((product) =>
-                    this.getProductElement(product)
+                  (<Col sm={12} lg={6} key={product._id}>
+                    {this.getProductElement(product)}
+                  </Col>)
                   )
                 ) : this.state.loading ? (
                   <div className="loading-text">Loading products...</div>
                 ) : (
                   <div className="loading-text">No products to list</div>
                 )}
-              </Row>
+                </Row>
+              
             </div>
           </Col>
 
@@ -325,3 +333,4 @@ class Search extends React.Component {
 }
 
 export default withRouter(Search);
+https://github.com/adi21shyam/Qkart-Backend.git

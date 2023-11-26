@@ -3,6 +3,9 @@ const mongoose = require("mongoose");
 const validator = require("validator");
 const config = require("../config/config");
 const bcrypt = require("bcryptjs");
+
+
+// TODO: CRIO_TASK_MODULE_UNDERSTANDING_BASICS - Complete userSchema, a Mongoose schema for "users" collection
 const userSchema = mongoose.Schema(
   {
     name: {
@@ -14,38 +17,35 @@ const userSchema = mongoose.Schema(
       type: String,
       required: true,
       trim: true,
-      unique: true,
-      lowercase: true,
-      validate: (value)=>{
-        if(validator.isEmail(value))
-          return true;
-        else return false;
+      lowercase:true,
+      validate(value)
+      {
+        if(!validator.isEmail(value))
+        {
+          throw new Error("Invalid Email")
+        }
       }
-
     },
     password: {
       type: String,
       required: true,
       trim: true,
-      minLength: 8,
-      validate: (value)=> {
+      minength:8,
+      validate(value) {
         if (!value.match(/\d/) || !value.match(/[a-zA-Z]/)) {
           throw new Error(
             "Password must contain at least one letter and one number"
           );
         }
       },
-
     },
     walletMoney: {
       type: Number,
       required: true,
-      default: config.default_wallet_money,
+      default:config.default_wallet_money
     },
     address: {
       type: String,
-      trim: false,
-      required: false,
       default: config.default_address,
     },
   },
@@ -55,19 +55,25 @@ const userSchema = mongoose.Schema(
   }
 );
 
+// TODO: CRIO_TASK_MODULE_UNDERSTANDING_BASICS - Implement the isEmailTaken() static method
 /**
  * Check if email is taken
  * @param {string} email - The user's email
  * @returns {Promise<boolean>}
  */
 userSchema.statics.isEmailTaken = async function (email) {
+  const result = await this.findOne({ email: email });
+  // console.log(result);   
+  return result;
+};
 
-  const check = await this.find({email: email});
-  if(check.length)
-    return true;
-  else 
-    return false;
-
+/**
+ * Check if entered password matches the user's password
+ * @param {string} password
+ * @returns {Promise<boolean>}
+ */
+userSchema.methods.isPasswordMatch = async function (password) {
+  return await bcrypt.compare(password, this.password);
 };
 
 userSchema.pre('save', function(next) {
@@ -91,14 +97,8 @@ userSchema.pre('save', function(next) {
 });
 
 
+// TODO: CRIO_TASK_MODULE_UNDERSTANDING_BASICS
 
-/**
- * Check if entered password matches the user's password
- * @param {string} password
- * @returns {Promise<boolean>}
- */
-userSchema.methods.isPasswordMatch = async function (password) {
-};
 
 
 /**
@@ -110,7 +110,7 @@ userSchema.methods.isPasswordMatch = async function (password) {
  */
 userSchema.methods.hasSetNonDefaultAddress = async function () {
   const user = this;
-   return user.address === config.default_address;
+   return user.address !== config.default_address;
 };
 
 /*
@@ -122,6 +122,5 @@ userSchema.methods.hasSetNonDefaultAddress = async function () {
  * @typedef User
  */
 
-const User = mongoose.model("Users", userSchema);
-
-module.exports = {User}
+ const User=mongoose.model("user",userSchema);  
+ module.exports = {User}

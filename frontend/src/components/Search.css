@@ -1,6 +1,7 @@
 .search-container {
   display: flex;
   justify-content: center;
+  flex-direction: row;
   width: 100%;
   /* Reduce 70px of header and 100px of footer 
   ** Make footer display at bottom even if less content on main page

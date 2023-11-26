@@ -3,7 +3,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import "./Home.css";
 
-export default function App() {
+export default function Home() {
   return (
     <>
       {/* Display "Home" page content */}
