@@ -333,4 +333,3 @@ class Search extends React.Component {
 }
 
 export default withRouter(Search);
-https://github.com/adi21shyam/Qkart-Backend.git
